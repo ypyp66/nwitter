@@ -1,11 +1,11 @@
-import { authService } from "../fbase";
+import { authService, firebaseInstance } from "../fbase";
 import { useState } from "react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [newAccount, setNewAccount] = useState(true);
-  const [error, setError] = useState(false);
+  const [newAccount, setNewAccount] = useState(true); //새로운 계정인지
+  const [error, setError] = useState(false); //에러
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -36,6 +36,19 @@ const Auth = () => {
     setNewAccount((prev) => !prev); //이전 상태를 가져와서 반전시킴
   };
 
+  const onSocialClick = async (e) => {
+    const { name } = e.target; //es6문법
+    let provider;
+    if (name === "google") {
+      provider = new firebaseInstance.auth.GoogleAuthProvider();
+    } else if (name === "github") {
+      provider = new firebaseInstance.auth.GithubAuthProvider();
+    }
+
+    const data = await authService.signInWithPopup(provider);
+    console.log(data);
+  };
+
   return (
     <div>
       <form onSubmit={onSubmit}>
@@ -61,8 +74,12 @@ const Auth = () => {
           {newAccount ? "Sign in" : "Create Account"}
         </div>
       </form>
-      <button>Countinue with Google</button>
-      <button>Countinue with Google</button>
+      <button name="google" onClick={onSocialClick}>
+        Countinue with Google
+      </button>
+      <button name="github" onClick={onSocialClick}>
+        Countinue with Github
+      </button>
     </div>
   );
 };
